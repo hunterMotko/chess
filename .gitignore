@@ -4,6 +4,8 @@ client/node_modules/
 server/*.db
 server/node_modules/
 
+openings/
+
 .DS_Store
 
 *.DS_Store

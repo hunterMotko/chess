@@ -1,0 +1,51 @@
+package server
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/hunterMotko/chess-game/internal/database"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+)
+
+func (s *Server) RegisterRoutes() http.Handler {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.GET("/ws", hello)
+	e.GET("/check-h", s.healthHandler)
+	e.GET("/api/openings/:id", s.openingsHandler)
+
+	e.Logger.Fatal(e.Start(s.addr))
+	return e
+}
+
+func (s *Server) healthHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, s.db.Health())
+}
+
+func (s *Server) openingsHandler(c echo.Context) error {
+	id := c.Param("id")
+	start := c.QueryParam("start")
+	end := c.QueryParam("end")
+
+	st, _ := strconv.Atoi(start)
+	e, _ := strconv.Atoi(end)
+
+	params := database.OpeningParams{
+		Vol:   id,
+		Start: st,
+		End:   e,
+	}
+
+	res, err := s.db.GetOpeningsByVolume(c.Request().Context(), params)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
