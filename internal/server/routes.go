@@ -28,16 +28,25 @@ func (s *Server) healthHandler(c echo.Context) error {
 
 func (s *Server) openingsHandler(c echo.Context) error {
 	id := c.Param("id")
-	start := c.QueryParam("start")
-	end := c.QueryParam("end")
-
-	st, _ := strconv.Atoi(start)
-	e, _ := strconv.Atoi(end)
+	page := c.QueryParam("p")
+	offset := c.QueryParam("o")
+	p, err := strconv.Atoi(page)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+		})
+	}
+	o, err := strconv.Atoi(offset)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+		})
+	}
 
 	params := database.OpeningParams{
-		Vol:   id,
-		Start: st,
-		End:   e,
+		Vol:    id,
+		Page:   p,
+		Offset: o,
 	}
 
 	res, err := s.db.GetOpeningsByVolume(c.Request().Context(), params)

@@ -15,26 +15,39 @@ type Opening struct {
 }
 
 type OpeningParams struct {
-	Vol   string
-	Start int
-	End   int
+	Vol    string
+	Page   int
+	Offset int
 }
 
 type OpeningsRes struct {
-	Openings []Opening
-	Prev     int
-	Next     int
+	Openings []Opening `json:"openings"`
+	Page     int       `json:"page"`
+	Offset   int       `json:"offset"`
+	Total    int       `json:"total"`
 }
+
+const getTotalOpeningsCount = `
+	SELECT COUNT(*) FROM openings 
+	WHERE eco LIKE $1
+	`
 
 const getOpeningsByVolume = `
 	SELECT * FROM openings 
 	WHERE eco LIKE $1
-	LIMIT 20
+	ORDER BY eco
+	LIMIT 50
 	OFFSET $2;
 	`
 
 func (s *Service) GetOpeningsByVolume(ctx context.Context, params OpeningParams) (*OpeningsRes, error) {
-	rows, err := s.db.QueryContext(ctx, getOpeningsByVolume, params.Vol+"%", params.End)
+	eco := fmt.Sprintf("%s%%", params.Vol)
+	var total int
+	if err := s.db.QueryRowContext(ctx, getTotalOpeningsCount, eco).Scan(&total); err != nil {
+		return nil, err
+	}
+
+	rows, err := s.db.QueryContext(ctx, getOpeningsByVolume, eco, params.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -49,11 +62,10 @@ func (s *Service) GetOpeningsByVolume(ctx context.Context, params OpeningParams)
 		openings = append(openings, o)
 	}
 
-	fmt.Println(openings)
-
 	return &OpeningsRes{
 		Openings: openings,
-		Prev:     params.Start,
-		Next:     params.End,
+		Page:     params.Page,
+		Offset:   params.Offset,
+		Total:    total,
 	}, nil
 }

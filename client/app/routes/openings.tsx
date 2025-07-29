@@ -1,5 +1,7 @@
-import { useNavigate } from "react-router";
+import { Form, useNavigate } from "react-router";
 import { Link } from "react-router";
+import type { Route } from "./+types/openings";
+import { redirect } from "react-router";
 
 interface EcoVolume {
 	id: string;
@@ -60,13 +62,14 @@ const ecoVolumes: EcoVolume[] = [
 	},
 ];
 
+export async function action({ request }: Route.ActionArgs) {
+	const data = await request.formData()
+	const id = data.get("id")
+	return redirect(`/openings/${id}?p=${1}&o=${0}`)
+}
+
 export default function Openings() {
 	const navigate = useNavigate()
-
-	const handleVolumeClick = (volumeId: string) => {
-		console.log(`Selected ECO Volume: ${volumeId}`);
-		navigate(`/openings/${volumeId}`)
-	};
 
 	return (
 		<div className="min-h-screen text-white p-6 sm:p-10">
@@ -88,12 +91,17 @@ export default function Openings() {
 					</Link>.
 				</p>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<Form
+					className="grid grid-cols-1 md:grid-cols-2 gap-6"
+					method="post"
+				>
 					{ecoVolumes.map((volume) => (
-						<div
+						<button
 							key={volume.id}
+							name="id"
+							value={volume.id}
 							className="bg-gray-800 rounded-lg shadow-xl p-6 border-2 border-transparent hover:border-indigo-500 transition-all duration-300 cursor-pointer group"
-							onClick={() => handleVolumeClick(volume.id)}
+							type="submit"
 						>
 							<h2 className="text-2xl font-bold mb-3 text-indigo-300 group-hover:text-indigo-200">
 								{volume.name}
@@ -106,13 +114,13 @@ export default function Openings() {
 									</li>
 								))}
 							</ul>
-						</div>
+						</button>
 					))}
-				</div>
+				</Form>
 
 				<div className="text-center mt-10">
 					<button
-						onClick={() => { }}
+						onClick={() => navigate('/')}
 						className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-300"
 					>
 						Back to Home

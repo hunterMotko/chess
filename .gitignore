@@ -9,3 +9,8 @@ openings/
 .DS_Store
 
 *.DS_Store
+
+tmp
+tmp/*
+
+.air.toml
