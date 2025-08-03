@@ -14,27 +14,46 @@ body {
 	}
 }
 
-.game {
-	width: 100%;
-	height: 100%;
-	margin: 2em auto;
+/* In `src/ChessGame.css` */
+.chess-game-container {
+	font-family: 'Arial', sans-serif;
+	text-align: center;
+	padding: 20px;
 }
 
-.row {
-	display: flex;
-	justify-content: center;
-	align-items: center;
+.button-container {
+	margin: 20px 0;
+}
+
+.chessboard {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	grid-template-rows: repeat(8, 1fr);
+	width: 400px;
+	/* Adjust as needed */
+	height: 400px;
+	margin: 0 auto;
+	border: 4px solid #333;
 }
 
 .square {
 	width: 50px;
 	height: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .light {
-	background-color: #769656;
+	background-color: #f0d9b5;
 }
 
 .dark {
-	background-color: #eeeed2;
+	background-color: #b58863;
+}
+
+.piece {
+	width: 90%;
+	height: 90%;
+	cursor: grab;
 }

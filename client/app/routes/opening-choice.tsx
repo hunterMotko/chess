@@ -1,6 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router"
 import type { Route } from "./+types/opening-choice"
-import { useState } from "react"
 import Pagination from "~/components/pagination"
 
 type Opening = {

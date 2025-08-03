@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -8,12 +9,14 @@ import (
 	"time"
 
 	"github.com/hunterMotko/chess-game/internal/database"
+	"github.com/hunterMotko/chess-game/internal/websockets"
 	_ "github.com/joho/godotenv/autoload"
 )
 
 type Server struct {
-	addr string
-	db   *database.Service
+	addr    string
+	db      *database.Service
+	manager *websockets.Manager
 }
 
 func NewServer() *http.Server {
@@ -26,9 +29,12 @@ func NewServer() *http.Server {
 		port, _ = strconv.Atoi(os.Getenv("PRO"))
 	}
 
+	ctx := context.Background()
+	manager := websockets.NewManager(ctx)
 	NewServer := &Server{
-		addr: fmt.Sprintf(":%d", port),
-		db:   database.New(),
+		addr:    fmt.Sprintf(":%d", port),
+		db:      database.New(),
+		manager: manager,
 	}
 
 	server := &http.Server{
