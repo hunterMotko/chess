@@ -14,7 +14,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/ws", hello)
+	e.GET("/ws/:gameId", s.manager.ServeWS)
 	e.GET("/check-h", s.healthHandler)
 	e.GET("/api/openings/:id", s.openingsHandler)
 
@@ -27,7 +27,7 @@ func (s *Server) healthHandler(c echo.Context) error {
 }
 
 func (s *Server) openingsHandler(c echo.Context) error {
-	id := c.Param("id")
+	f
 	page := c.QueryParam("p")
 	offset := c.QueryParam("o")
 	p, err := strconv.Atoi(page)

@@ -1,101 +1,179 @@
 import { Chess } from "chess.js"
 import type { Square } from "chess.js"
-import { useEffect, useState } from "react"
-import BoardSquare from "./BoardSquare"
-import type { SquareItem } from "./BoardSquare"
+import { useEffect, useRef, useState } from "react"
+import type { DragEvent } from "react"
 import { useSocket } from "~/hooks/useSocket"
 
 function curSquare(i: number, j: number): Square {
 	return `${String.fromCharCode(97 + j)}${8 - i}` as Square
 }
 
-export default function Game() {
-	const socket = useSocket()
-	const [chess, setChess] = useState<Chess | null>(null)
-	const [toMove, setToMove] = useState('')
-	const [posMoves, setPosMoves] = useState<string[]>([])
-	const [selectPiece, setSelectedPiece] = useState<SquareItem>(null)
+function fenToBoard(fen: string): (string | null)[][] {
+	const [boardFen] = fen.split(' ');
+	const rows = boardFen.split('/');
+	const board: (string | null)[][] = [];
+	rows.forEach(row => {
+		const newRow = [];
+		for (let char of row) {
+			if (isNaN(parseInt(char))) {
+				newRow.push(char);
+			} else {
+				const emptySquares = parseInt(char);
+				for (let i = 0; i < emptySquares; i++) {
+					newRow.push(null);
+				}
+			}
+		}
+		board.push(newRow);
+	});
+	return board;
+};
+
+// Helper function to get the square's coordinate from its position in the array
+function toChessNotation(rowIndex: number, colIndex: number): string {
+	const files = 'abcdefgh';
+	const rank = 8 - rowIndex;
+	const file = files[colIndex];
+	return `${file}${rank}`;
+};
+
+
+const pieceImgs: {
+	[keyof: string]: string
+} = {
+	'R': 'w-rook.svg',
+	'N': 'w-knight.svg',
+	'B': 'w-bishop.svg',
+	'Q': 'w-queen.svg',
+	'K': 'w-king.svg',
+	'P': 'w-pawn.svg',
+	'r': 'b-rook.svg',
+	'n': 'b-knight.svg',
+	'b': 'b-bishop.svg',
+	'q': 'b-queen.svg',
+	'k': 'b-king.svg',
+	'p': 'b-pawn.svg',
+}
+
+type ChessGameProps = {
+	gameId: string
+}
+export default function ChessGame({ gameId }: ChessGameProps) {
+	const { data, isConnected, sendMsg } = useSocket({ gameId });
+	const chess = useRef(new Chess());
+	chess.current.setHeader('gameId', gameId)
+	const [fen, setFen] = useState(chess.current.fen());
+	const [sourceSquare, setSourceSquare] = useState<string | null>(null);
+	const [gameOutcome, setGameOutcome] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (!socket) return;
+		if (data && data.type === 'GAME_UPDATE') {
+			const payload = data.payload;
+			chess.current.load(payload.fen);
+			setFen(chess.current.fen());
+			if (chess.current.isGameOver()) {
+				if (chess.current.isCheckmate()) {
+					setGameOutcome(`${chess.current.turn() === 'w' ? 'black' : 'white'} wins by checkmate!`);
+				} else if (chess.current.isDraw()) {
+					setGameOutcome('The game is a draw.');
+				} else if (chess.current.isStalemate()) {
+					setGameOutcome('Stalemate!');
+				}
+			}
+		}
+	}, [data]);
 
-		socket.onmessage = event => {
-			console.log(event)
-			const message = JSON.parse(event.data)
-			console.log("SOCKET Message", message)
+	const handleNewGame = () => {
+		chess.current.reset();
+		setFen(chess.current.fen());
+		setGameOutcome(null);
+		const payload = { mode: 'classic' };
+		sendMsg('NEW_GAME', payload);
+	};
+
+	const onPieceDrop = (targetSquare: string) => {
+		if (!sourceSquare) return;
+
+		let move = null;
+		try {
+			move = chess.current.move({
+				from: sourceSquare,
+				to: targetSquare,
+				promotion: 'q',
+			});
+		} catch (e) {
+			console.log("Illegal move:", e.message);
 		}
 
-		socket.onerror = err => {
-			console.error("SOCKET ERROR", err)
-		}
+		// Clear the source square regardless of move legality
+		setSourceSquare(null);
 
-		socket.send(JSON.stringify({ type: 'chess client', payload: "hello server" }))
-	}, [socket])
+		if (move) {
+			setFen(chess.current.fen());
+			const payload = {
+				from: move.from,
+				to: move.to,
+				promotion: move.promotion || ''
+			};
+			sendMsg('MAKE_MOVE', payload);
+		}
+	};
 
-	useEffect(() => {
-		const fenCache = localStorage.getItem('fenCache')
-		if (fenCache) {
-			setChess(new Chess(fenCache))
-		} else {
-			setChess(new Chess())
-		}
-	}, [])
+	const onDragStart = (e: DragEvent<HTMLDivElement>, square: string) => {
+		setSourceSquare(square);
+	};
 
-	useEffect(() => {
-		let fen = chess?.fen()
-		if (fen) {
-			localStorage.setItem('fenCache', fen)
-		}
-	}, [chess, toMove, posMoves])
+	const onDragOver = (e: DragEvent<HTMLDivElement>) => {
+		e.preventDefault();
+	};
 
-	function handleMove(sq: SquareItem, pos: Square) {
-		if (toMove === '') {
-			setPosMoves(chess?.moves({ square: pos }) ?? [])
-			setToMove(pos)
-			setSelectedPiece(sq)
-			return
-		}
-		if (selectPiece && chess?.getCastlingRights(selectPiece.color)) {
-			chess?.move({ from: toMove, to: pos })
-		} else if (posMoves.some(val => val.includes(pos))) {
-			chess?.move({ from: toMove, to: pos })
-		}
-		setToMove('')
-	}
+	const onDrop = (e: DragEvent<HTMLDivElement>, targetSquare: string) => {
+		e.preventDefault();
+		onPieceDrop(targetSquare);
+	};
+
+	const boardArray = fenToBoard(fen);
 
 	return (
-		<div className="game">
-			{chess && (
-				<Board
-					chess={chess}
-					handleMove={handleMove}
-				/>
-			)}
+		<div className="chess-game-container">
+			<h1>Chess App</h1>
+			<p>{isConnected ? 'Connected' : 'Disconnected'}</p>
+
+			{gameOutcome && <h2>Game Over: {gameOutcome}</h2>}
+
+			<div className="button-container">
+				<button onClick={handleNewGame}>New Game</button>
+			</div>
+
+			<div className="chessboard">
+				{boardArray.map((row, rowIndex) => (
+					row.map((piece, colIndex) => {
+						const square = toChessNotation(rowIndex, colIndex);
+						const isLightSquare = (rowIndex + colIndex) % 2 === 0;
+						return (
+							<div
+								key={square}
+								className={`square ${isLightSquare ? 'light' : 'dark'}`}
+								onDragOver={onDragOver}
+								onDrop={(e) => onDrop(e, square)}
+							>
+								{piece && (
+									<img
+										className="piece"
+										src={`/${pieceImgs[piece]}`}
+										alt={piece}
+										draggable
+										onDragStart={(e) => onDragStart(e, square)}
+									/>
+								)}
+							</div>
+						);
+					})
+				))}
+			</div>
+
+			<h3>Current FEN:</h3>
+			<pre>{fen}</pre>
 		</div>
-	)
-}
-
-type BoardProps = {
-	chess: Chess;
-	handleMove: (sq: SquareItem, pos: Square) => void
-}
-
-function Board({ chess, handleMove }: BoardProps) {
-	return (
-		<>
-			{chess.board().map((row, i) =>
-				<div key={i} className="row">
-					{row.map((sq, j) => (
-						<BoardSquare
-							key={`${i},${j}`}
-							sq={sq}
-							sqColor={chess.squareColor(curSquare(i, j))}
-							pos={curSquare(i, j)}
-							onClick={handleMove}
-						/>
-					))}
-				</div>
-			)}
-		</>
-	)
-}
+	);
+};
