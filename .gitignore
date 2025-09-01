@@ -24,3 +24,5 @@ tmp/*
 
 .env
 .env.*
+
+claude.md

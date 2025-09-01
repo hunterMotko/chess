@@ -80,11 +80,14 @@ func MoveHandler(e Event, c *Client) error {
 
 func LoadPgnHandler(e Event, c *Client) error {
 	reader := bytes.NewReader(e.Payload)
-	pgn, err := chess.PGN(reader)
+	pgnFunc, err := chess.PGN(reader)
 	if err != nil {
 		return err
 	}
-	log.Println(pgn)
+	// PGN returns a function that we can call with a game to scan PGN
+	game := chess.NewGame()
+	pgnFunc(game)
+	log.Println("Loaded PGN game:", game.Position())
 	log.Println("LOAD PGN: \n", e, c)
 	return nil
 }

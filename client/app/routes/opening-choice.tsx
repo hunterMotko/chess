@@ -54,6 +54,10 @@ export default function({ loaderData }: Route.ComponentProps) {
 		navigate(`/openings/${id}?p=${curPage}&o=${curPage * 50}`)
 	}
 
+	function onClick(pgn: string) {
+		navigate(`/play/new?pgn=${pgn}`)
+	}
+
 	return (
 		<div className="my-5 mx-auto">
 			<section className="w-1/2 bg-gray-700 text-center border rounded my-8 mx-auto p-3">
@@ -65,6 +69,7 @@ export default function({ loaderData }: Route.ComponentProps) {
 					<div
 						key={item.id}
 						className="bg-gray-700 hover:bg-gray-600 text-white grid grid-cols-7 font-bold border rounded mx-3 p-2"
+						onClick={() => onClick(item.pgn)}
 					>
 						<div className="">
 							{item.eco}
