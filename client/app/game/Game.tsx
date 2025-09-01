@@ -1,77 +1,45 @@
-import { Chess } from "chess.js"
-import type { Square } from "chess.js"
-import { useEffect, useRef, useState } from "react"
+import { Chess, type Square } from "chess.js"
 import type { DragEvent } from "react"
+import { useEffect, useRef, useState } from "react"
+import ChessBoard from "./ChessBoard"
+import GameStats from "./GameStats"
 import { useSocket } from "~/hooks/useSocket"
-
-function curSquare(i: number, j: number): Square {
-	return `${String.fromCharCode(97 + j)}${8 - i}` as Square
-}
-
-function fenToBoard(fen: string): (string | null)[][] {
-	const [boardFen] = fen.split(' ');
-	const rows = boardFen.split('/');
-	const board: (string | null)[][] = [];
-	rows.forEach(row => {
-		const newRow = [];
-		for (let char of row) {
-			if (isNaN(parseInt(char))) {
-				newRow.push(char);
-			} else {
-				const emptySquares = parseInt(char);
-				for (let i = 0; i < emptySquares; i++) {
-					newRow.push(null);
-				}
-			}
-		}
-		board.push(newRow);
-	});
-	return board;
-};
-
-// Helper function to get the square's coordinate from its position in the array
-function toChessNotation(rowIndex: number, colIndex: number): string {
-	const files = 'abcdefgh';
-	const rank = 8 - rowIndex;
-	const file = files[colIndex];
-	return `${file}${rank}`;
-};
-
-
-const pieceImgs: {
-	[keyof: string]: string
-} = {
-	'R': 'w-rook.svg',
-	'N': 'w-knight.svg',
-	'B': 'w-bishop.svg',
-	'Q': 'w-queen.svg',
-	'K': 'w-king.svg',
-	'P': 'w-pawn.svg',
-	'r': 'b-rook.svg',
-	'n': 'b-knight.svg',
-	'b': 'b-bishop.svg',
-	'q': 'b-queen.svg',
-	'k': 'b-king.svg',
-	'p': 'b-pawn.svg',
-}
+import { fenToBoard } from "~/utils/utils"
 
 type ChessGameProps = {
 	gameId: string
+	pgn: string | null
 }
-export default function ChessGame({ gameId }: ChessGameProps) {
-	const { data, isConnected, sendMsg } = useSocket({ gameId });
+
+export default function ChessGame({ gameId, pgn }: ChessGameProps) {
 	const chess = useRef(new Chess());
+	const { data, isConnected, sendMsg } = useSocket({ gameId });
+	if (pgn) {
+		chess.current.loadPgn(pgn + "\n")
+	}
 	chess.current.setHeader('gameId', gameId)
 	const [fen, setFen] = useState(chess.current.fen());
+	const [turn, setTurn] = useState(chess.current.turn())
+	const [history, setHistory] = useState<string[]>([])
+	const [isFlipped, setIsFlipped] = useState(false)
 	const [sourceSquare, setSourceSquare] = useState<string | null>(null);
 	const [gameOutcome, setGameOutcome] = useState<string | null>(null);
+	const [availableMoves, setAvailableMoves] = useState<string[]>([])
 
 	useEffect(() => {
-		if (data && data.type === 'GAME_UPDATE') {
-			const payload = data.payload;
+		if (turn === 'b') setIsFlipped(true)
+		console.log(chess.current.fen())
+		console.log('isConnected', isConnected)
+	}, [])
+
+	useEffect(() => {
+		if (data && data?.type === 'GAME_UPDATE') {
+			const payload = data?.payload;
 			chess.current.load(payload.fen);
 			setFen(chess.current.fen());
+			setHistory(chess.current.history())
 			if (chess.current.isGameOver()) {
+				console.log('game is over')
 				if (chess.current.isCheckmate()) {
 					setGameOutcome(`${chess.current.turn() === 'w' ? 'black' : 'white'} wins by checkmate!`);
 				} else if (chess.current.isDraw()) {
@@ -83,6 +51,7 @@ export default function ChessGame({ gameId }: ChessGameProps) {
 		}
 	}, [data]);
 
+
 	const handleNewGame = () => {
 		chess.current.reset();
 		setFen(chess.current.fen());
@@ -91,10 +60,23 @@ export default function ChessGame({ gameId }: ChessGameProps) {
 		sendMsg('NEW_GAME', payload);
 	};
 
+	useEffect(() => {
+		if (chess.current.isGameOver()) {
+			if (chess.current.isCheckmate()) {
+				let player = chess.current.turn() === 'w' ? 'black' : 'white'
+				setGameOutcome(`${player} wins by checkmate!`);
+			} else if (chess.current.isDraw()) {
+				setGameOutcome('The game is a draw.');
+			} else if (chess.current.isStalemate()) {
+				setGameOutcome('Stalemate!');
+			}
+		}
+	}, [sourceSquare])
+
 	const onPieceDrop = (targetSquare: string) => {
 		if (!sourceSquare) return;
-
 		let move = null;
+
 		try {
 			move = chess.current.move({
 				from: sourceSquare,
@@ -102,24 +84,29 @@ export default function ChessGame({ gameId }: ChessGameProps) {
 				promotion: 'q',
 			});
 		} catch (e) {
-			console.log("Illegal move:", e.message);
+			console.log("Illegal move:", e);
 		}
-
-		// Clear the source square regardless of move legality
+		// Clear the source 
+		// square regardless of move legality
 		setSourceSquare(null);
 
 		if (move) {
 			setFen(chess.current.fen());
+			setHistory(chess.current.history())
 			const payload = {
 				from: move.from,
 				to: move.to,
 				promotion: move.promotion || ''
 			};
 			sendMsg('MAKE_MOVE', payload);
+			setTurn(chess.current.turn())
+			setAvailableMoves([])
 		}
 	};
 
+
 	const onDragStart = (e: DragEvent<HTMLDivElement>, square: string) => {
+		setAvailableMoves(chess.current.moves({ square: square as Square }))
 		setSourceSquare(square);
 	};
 
@@ -127,53 +114,43 @@ export default function ChessGame({ gameId }: ChessGameProps) {
 		e.preventDefault();
 	};
 
-	const onDrop = (e: DragEvent<HTMLDivElement>, targetSquare: string) => {
+	const onDrop = (e: DragEvent<HTMLDivElement>, square: string) => {
 		e.preventDefault();
-		onPieceDrop(targetSquare);
+		onPieceDrop(square);
 	};
 
-	const boardArray = fenToBoard(fen);
+	const onClick = (square: string) => {
+		if (!sourceSquare) {
+			setAvailableMoves(chess.current.moves({ square: square as Square }))
+			setSourceSquare(square)
+		} else {
+			onPieceDrop(square)
+		}
+	}
 
 	return (
-		<div className="chess-game-container">
-			<h1>Chess App</h1>
-			<p>{isConnected ? 'Connected' : 'Disconnected'}</p>
-
-			{gameOutcome && <h2>Game Over: {gameOutcome}</h2>}
-
-			<div className="button-container">
-				<button onClick={handleNewGame}>New Game</button>
-			</div>
-
-			<div className="chessboard">
-				{boardArray.map((row, rowIndex) => (
-					row.map((piece, colIndex) => {
-						const square = toChessNotation(rowIndex, colIndex);
-						const isLightSquare = (rowIndex + colIndex) % 2 === 0;
-						return (
-							<div
-								key={square}
-								className={`square ${isLightSquare ? 'light' : 'dark'}`}
-								onDragOver={onDragOver}
-								onDrop={(e) => onDrop(e, square)}
-							>
-								{piece && (
-									<img
-										className="piece"
-										src={`/${pieceImgs[piece]}`}
-										alt={piece}
-										draggable
-										onDragStart={(e) => onDragStart(e, square)}
-									/>
-								)}
-							</div>
-						);
-					})
-				))}
-			</div>
-
-			<h3>Current FEN:</h3>
-			<pre>{fen}</pre>
-		</div>
+		<main className="mt-8 w-full h-full grid grid-cols-1 lg:grid-cols-2 px-5">
+			<section className="p-2">
+				<ChessBoard
+					boardArray={fenToBoard(fen, isFlipped)}
+					onDragStart={onDragStart}
+					onDragOver={onDragOver}
+					onDrop={onDrop}
+					onClick={onClick}
+					availableMoves={availableMoves}
+					isFlipped={isFlipped}
+				/>
+			</section>
+			<section className="p-2">
+				<GameStats
+					isConnected={isConnected}
+					gameOutcome={gameOutcome}
+					handleNewGame={handleNewGame}
+					turn={turn}
+					history={history}
+					fen={fen}
+				/>
+			</section>
+		</main>
 	);
 };

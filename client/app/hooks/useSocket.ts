@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 
-
 type SocketProps = {
 	gameId: string
 }
@@ -10,11 +9,11 @@ export function useSocket({ gameId }: SocketProps) {
 	const [isConnected, setIsConnected] = useState(false)
 	const ws = useRef<WebSocket | null>(null)
 	const url = import.meta.env.VITE_WS_URL
-	console.log(url, gameId)
 
 	useEffect(() => {
 		ws.current = new WebSocket(`${url}/${gameId}`)
 		console.log(ws.current)
+
 		ws.current.onopen = () => {
 			console.log('WS CONNECTED')
 			setIsConnected(true)

@@ -1,32 +1,166 @@
 # Chess Game
 
+A full-stack chess application featuring real-time gameplay, chess openings reference, and game analysis. Built with React Router v7 frontend and Go backend with WebSocket communication.
 
-## Openings
+## Features
 
-## Play a game against stockfish
+- **Real-time Chess Gameplay** - Play against Stockfish engine with live move synchronization
+- **Chess Openings Reference** - Browse ECO-classified openings (A00-E99) with pagination
+- **Game State Persistence** - Save and load games with PGN support
+- **Live Game Analysis** - Real-time board updates via WebSocket connection
 
-## Save a game
+## Tech Stack
 
-### Openings
+### Frontend
+- **React Router v7** - Full-stack React framework
+- **TypeScript** - Type-safe development
+- **Tailwind CSS v4** - Modern styling
+- **chess.js** - Chess game logic and validation
+- **Vite** - Fast development and build tool
 
-Check out the referance on [Wikipedia](https://en.wikipedia.org/wiki/Encyclopaedia_of_Chess_Openings) 
+### Backend
+- **Go** - High-performance backend
+- **Echo** - Web framework for HTTP and WebSocket handling
+- **PostgreSQL** - Database with lib/pq driver
+- **corentings/chess/v2** - Chess engine integration
+- **gorilla/websocket** - Real-time communication
 
-- Volumes A: flank
-  - White first moves other than 1.e4, 1.d4 (A00–A39)
-  - 1.d4 without 1...d5, 1...Nf6 or 1...f5: Atypical replies to 1.d4 (A40–A44)
-  - 1.d4 Nf6 without 2.c4: Atypical replies to 1...Nf6 (A45–A49)
-  - 1.d4 Nf6 2.c4 without 2...e6, 2...g6: Atypical Indian systems (A50–A79)
-  - 1.d4 f5: Dutch Defence (A80–A99)
-- Volumes B: semi-open games other than the french defence
-  - 1.e4 without 1...c6, 1...c5, 1...e6, 1...e5 (B00–B09)
-  - 1.e4 c6: Caro–Kann Defence (B10–B19)
-  - 1.e4 c5: Sicilian Defence (B20–B99)
-- Volumes C: open games and the french defence
-  - 1.e4 e6: French Defence (C00–C19)
-  - 1.e4 e5: Double King Pawn games (C20–C99)
-- Volumes D: closed games and semi-closed games
-  - 1.d4 d5: Double Queen Pawn games (D00–D69)
-  - 1.d4 Nf6 2.c4 g6 with 3...d5: Grünfeld Defence (D70–D99)
-- Volumes E: Indian Defences
-  - 1.d4 Nf6 2.c4 e6: Indian systems with ...e6 (E00–E59)
-  - 1.d4 Nf6 2.c4 g6 without 3...d5: Indian systems with ...g6 (except Grünfeld) (E60–E99)
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- Go 1.21+
+- PostgreSQL
+- Air (for Go hot reloading): `go install github.com/air-verse/air@latest`
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd chess-game
+   ```
+
+2. **Set up the backend**
+   ```bash
+   # Install Go dependencies
+   go mod tidy
+   
+   # Set up environment variables
+   cp .env.example .env
+   # Edit .env with your database credentials
+   ```
+
+3. **Set up the frontend**
+   ```bash
+   cd client
+   npm install
+   cd ..
+   ```
+
+4. **Database setup**
+   ```bash
+   # Create PostgreSQL database and run migrations
+   # (Add your specific migration commands here)
+   ```
+
+### Development
+
+**Start the backend** (from root directory):
+```bash
+air  # Hot reloading development server
+```
+
+**Start the frontend** (from `client/` directory):
+```bash
+npm run dev  # Development server on http://localhost:5173
+```
+
+### Building for Production
+
+**Backend**:
+```bash
+go build -o ./tmp/main .
+```
+
+**Frontend**:
+```bash
+cd client
+npm run build
+npm run start  # Serve production build
+```
+
+### Testing
+
+**Backend tests**:
+```bash
+go test ./... -v
+```
+
+**Frontend tests**:
+```bash
+cd client
+npm test
+```
+
+**Type checking**:
+```bash
+cd client
+npm run typecheck
+```
+
+## API Endpoints
+
+- `GET /check-h` - Health check
+- `GET /api/openings/:volume` - Get chess openings by ECO volume (A-E)
+- `WS /ws/:gameId` - WebSocket connection for real-time gameplay
+
+## WebSocket Events
+
+The application uses WebSocket communication for real-time game updates:
+
+- `new_game` - Initialize a new chess game
+- `move` - Send/receive chess moves
+- `load_pgn` - Load game from PGN notation
+- `game_over` - Handle game completion
+
+## Chess Openings Reference
+
+The application includes a comprehensive chess openings database organized by ECO (Encyclopaedia of Chess Openings) classification:
+
+- **Volume A**: Flank openings and atypical systems
+- **Volume B**: Semi-open games (Sicilian, Caro-Kann, etc.)
+- **Volume C**: Open games and French Defense
+- **Volume D**: Closed games and Queen's Gambit systems
+- **Volume E**: Indian Defense systems
+
+## Project Structure
+
+```
+chess-game/
+├── client/                 # React frontend
+│   ├── app/               # Application code
+│   ├── public/            # Static assets
+│   └── package.json
+├── internal/              # Go backend modules
+│   ├── database/          # Database operations
+│   ├── server/            # HTTP routes and handlers
+│   └── websockets/        # WebSocket game logic
+├── tests/                 # Integration tests
+├── main.go               # Application entry point
+└── README.md
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.

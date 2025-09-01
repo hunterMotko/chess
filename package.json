@@ -1,0 +1,37 @@
+{
+  "name": "chess-game",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd . && air",
+    "dev:frontend": "cd client && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "go build -o ./dist/chess-server .",
+    "build:frontend": "cd client && npm run build",
+    "test": "./scripts/run-tests.sh all",
+    "test:unit": "./scripts/run-tests.sh unit",
+    "test:integration": "./scripts/run-tests.sh integration",
+    "test:frontend": "./scripts/run-tests.sh frontend",
+    "test:watch": "./scripts/run-tests.sh watch",
+    "test:bench": "./scripts/run-tests.sh bench",
+    "lint": "./scripts/run-tests.sh lint",
+    "security": "./scripts/run-tests.sh security",
+    "clean": "./scripts/run-tests.sh clean",
+    "setup": "npm run setup:backend && npm run setup:frontend",
+    "setup:backend": "go mod download",
+    "setup:frontend": "cd client && npm install",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "db:migrate": "echo 'Database migrations not implemented yet'",
+    "db:seed": "echo 'Database seeding not implemented yet'",
+    "deploy": "echo 'Deployment script not implemented yet'"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

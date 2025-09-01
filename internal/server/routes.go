@@ -27,7 +27,7 @@ func (s *Server) healthHandler(c echo.Context) error {
 }
 
 func (s *Server) openingsHandler(c echo.Context) error {
-	f
+	id := c.Param("id")
 	page := c.QueryParam("p")
 	offset := c.QueryParam("o")
 	p, err := strconv.Atoi(page)

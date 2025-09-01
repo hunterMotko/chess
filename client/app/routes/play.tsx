@@ -1,5 +1,6 @@
 import Game from "~/game/Game";
 import type { Route } from "./+types/play";
+import ChessGame from "~/game/Game";
 
 // newGameId
 // is new create new game items
@@ -7,16 +8,21 @@ import type { Route } from "./+types/play";
 // game stats?
 export async function loader({ params, request }: Route.LoaderArgs) {
 	const gameId = crypto.randomUUID()
+	let url = new URL(request.url)
+	let pgn = url.searchParams.get('pgn')
+
 	return {
-		gameId
+		gameId,
+		pgn: pgn
 	}
 }
 
 export default function Play({ loaderData }: Route.ComponentProps) {
-	const { gameId } = loaderData
+	const { gameId, pgn } = loaderData
 	return (
 		<div className="">
-			<Game gameId={gameId} />
+			{/* <Game gameId={gameId} pgn={pgn} /> */}
+			<ChessGame gameId={gameId} pgn={pgn} />
 		</div>
 	)
 }
