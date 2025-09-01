@@ -225,14 +225,14 @@ func TestCheckOrigin(t *testing.T) {
 	}{
 		{
 			name:         "matching origin",
-			origin:       "http://localhost:5173",
-			clientOrigin: "http://localhost:5173",
+			origin:       "http://test-client.local",
+			clientOrigin: "http://test-client.local",
 			expected:     true, // Currently always returns true
 		},
 		{
 			name:         "different origin",
 			origin:       "http://malicious.com",
-			clientOrigin: "http://localhost:5173",
+			clientOrigin: "http://test-client.local",
 			expected:     true, // Currently always returns true - SECURITY ISSUE
 		},
 	}

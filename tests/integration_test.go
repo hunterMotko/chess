@@ -35,12 +35,23 @@ type IntegrationTestSuite struct {
 func (suite *IntegrationTestSuite) SetupSuite() {
 	// Set test environment variables
 	os.Setenv("APP_ENV", "test")
-	os.Setenv("CLIENT_ORIGIN", "http://localhost:3000")
+	
+	// Get client origin from environment or skip test
+	clientOrigin := os.Getenv("CLIENT_ORIGIN")
+	if clientOrigin == "" {
+		clientOrigin = os.Getenv("VITE_CLIENT_URL")
+		if clientOrigin == "" {
+			suite.T().Skip("CLIENT_ORIGIN or VITE_CLIENT_URL environment variable not set. Please set it for integration tests.")
+			return
+		}
+	}
+	os.Setenv("CLIENT_ORIGIN", clientOrigin)
 	
 	// Setup test database connection
 	testDBURL := os.Getenv("TEST_DB_URL")
 	if testDBURL == "" {
-		testDBURL = "postgresql://test:test@localhost:5432/chess_test?sslmode=disable"
+		suite.T().Skip("TEST_DB_URL environment variable not set. Please set it for integration tests.")
+		return
 	}
 	
 	var err error
@@ -159,7 +170,7 @@ func (suite *IntegrationTestSuite) TestWebSocketConnection() {
 	
 	// Connect to WebSocket
 	header := make(http.Header)
-	header.Set("Origin", "http://localhost:3000")
+	header.Set("Origin", os.Getenv("CLIENT_ORIGIN"))
 	
 	conn, _, err := websocket.DefaultDialer.Dial(wsURL, header)
 	suite.Require().NoError(err)
@@ -203,7 +214,7 @@ func (suite *IntegrationTestSuite) TestWebSocketMultipleClients() {
 	numClients := 3
 	
 	header := make(http.Header)
-	header.Set("Origin", "http://localhost:3000")
+	header.Set("Origin", os.Getenv("CLIENT_ORIGIN"))
 
 	for i := 0; i < numClients; i++ {
 		conn, _, err := websocket.DefaultDialer.Dial(wsURL, header)
@@ -267,7 +278,7 @@ func (suite *IntegrationTestSuite) TestCompleteUserWorkflow() {
 	wsURL := strings.Replace(suite.testServer.URL, "http", "ws", 1) + "/ws/workflow-test"
 	
 	header := make(http.Header)
-	header.Set("Origin", "http://localhost:3000")
+	header.Set("Origin", os.Getenv("CLIENT_ORIGIN"))
 	
 	conn, _, err := websocket.DefaultDialer.Dial(wsURL, header)
 	suite.Require().NoError(err)
@@ -415,7 +426,7 @@ func TestWebSocketOriginValidation(t *testing.T) {
 				// Proper origin validation (what should be implemented)
 				allowed := os.Getenv("CLIENT_ORIGIN")
 				if allowed == "" {
-					allowed = "http://localhost:5173"
+					allowed = "http://test-client.local" // fallback for standalone test
 				}
 				origin := r.Header.Get("Origin")
 				return origin == allowed
@@ -435,7 +446,7 @@ func TestWebSocketOriginValidation(t *testing.T) {
 		origin       string
 		shouldSucceed bool
 	}{
-		{"valid_origin", "http://localhost:5173", true},
+		{"valid_origin", "http://test-client.local", true},
 		{"invalid_origin", "http://malicious.com", false},
 		{"no_origin", "", false},
 	}

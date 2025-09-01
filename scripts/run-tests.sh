@@ -64,8 +64,19 @@ setup_test_env() {
     
     # Set test environment variables
     export APP_ENV=test
-    export CLIENT_ORIGIN=http://localhost:3000
-    export TEST_DB_URL=${TEST_DB_URL:-"postgresql://test:test@localhost:5432/chess_test?sslmode=disable"}
+    
+    # Require environment variables to be set externally for security
+    if [ -z "$CLIENT_ORIGIN" ]; then
+        print_error "CLIENT_ORIGIN environment variable must be set for integration tests"
+        print_info "Example: export CLIENT_ORIGIN=http://localhost:3000"
+        exit 1
+    fi
+    
+    if [ -z "$TEST_DB_URL" ]; then
+        print_error "TEST_DB_URL environment variable must be set for integration tests"
+        print_info "Example: export TEST_DB_URL=postgresql://user:pass@localhost:5432/chess_test?sslmode=disable"
+        exit 1
+    fi
     
     # Create test database if it doesn't exist (requires createdb command)
     if command -v createdb &> /dev/null; then
