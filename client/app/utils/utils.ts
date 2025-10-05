@@ -24,7 +24,9 @@ export function fenToBoard(fen: string, isFlipped: boolean): (string | null)[][]
 	});
 
 	if (isFlipped) {
-		board.reverse()
+		// When flipped, reverse both rows and columns to maintain coordinate consistency
+		board.reverse();
+		board.forEach(row => row.reverse());
 	}
 
 	return board;
@@ -38,12 +40,8 @@ export function toChessNotation(rowIndex: number, colIndex: number): string {
 	return `${file}${rank}`;
 };
 
-export function flippedNotation(rowIndex: number, colIndex: number): string {
-	const files = 'abcdefgh';
-	const rank = rowIndex + 1;
-	const file = files[8 - colIndex];
-	return `${file}${rank}`;
-}
+// REMOVED: flippedNotation - chess coordinates are always consistent
+// The board visual can flip, but coordinates stay the same
 
 export const pieceImgs: {
 	[keyof: string]: string

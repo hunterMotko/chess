@@ -1,11 +1,7 @@
-import type { Route } from "./+types/play";
+import type { Route } from "./+types/play.new";
 import ChessGame from "~/game/ChessGame";
 
-// newGameId
-// is new create new game items
-// is from openings load in png?
-// game stats?
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
 	const gameId = crypto.randomUUID()
 	let url = new URL(request.url)
 	let pgn = url.searchParams.get('pgn')
@@ -18,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 	}
 }
 
-export default function Play({ loaderData }: Route.ComponentProps) {
+export default function PlayNew({ loaderData }: Route.ComponentProps) {
 	const { gameId, pgn, eco } = loaderData
 	// Enable learning mode when PGN is provided (indicating opening demo)
 	const learningMode = !!pgn

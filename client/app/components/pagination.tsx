@@ -1,6 +1,3 @@
-
-
-
 interface PaginationProps {
 	curPage: number;
 	totalPages: number;
