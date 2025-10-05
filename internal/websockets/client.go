@@ -10,21 +10,35 @@ import (
 
 type Clients map[*Client]bool
 
+type ClientType string
+
+const (
+	ClientTypePlayer    ClientType = "player"
+	ClientTypeSpectator ClientType = "spectator"
+)
+
 type Client struct {
-	conn    *websocket.Conn
-	manager *Manager
+	conn      *websocket.Conn
+	manager   *Manager
 	// egress is used to avoid concurrent writes on the websocket conn
 	egress    chan Event
 	gameState *chess.Game
 	gameId    string
+	clientId  string
+	userName  string
+	clientType ClientType
 }
 
-func NewClient(conn *websocket.Conn, manager *Manager, gameId string) *Client {
+func NewClient(conn *websocket.Conn, manager *Manager, gameId, clientId, userName string, clientType ClientType) *Client {
 	return &Client{
-		conn:      conn,
-		manager:   manager,
-		egress:    make(chan Event),
-		gameState: &chess.Game{},
+		conn:       conn,
+		manager:    manager,
+		egress:     make(chan Event, 16), // Increased buffer for better performance
+		gameState:  &chess.Game{},
+		gameId:     gameId,
+		clientId:   clientId,
+		userName:   userName,
+		clientType: clientType,
 	}
 }
 
@@ -45,6 +59,8 @@ func (c *Client) readMessages() {
 			}
 			break
 		}
+		log.Printf("Received message from client %s: %s", c.clientId, string(payload))
+		
 		var req Event
 		if err := json.Unmarshal(payload, &req); err != nil {
 			log.Printf("ERROR UNMARSHALLING EVENT: %v\n", err)
@@ -71,16 +87,20 @@ func (c *Client) writeMessages() {
 				return
 			}
 
+			log.Printf("🚀 Client %s preparing to send message type: %s", c.clientId, message.Type)
+
 			data, err := json.Marshal(message)
 			if err != nil {
-				log.Printf("ERROR MARSHALLING EVENT: %v\n", err)
+				log.Printf("❌ ERROR MARSHALLING EVENT: %v\n", err)
+				continue
 			}
 
 			if err := c.conn.WriteMessage(websocket.TextMessage, data); err != nil {
-				log.Printf("failed to send message: %v\n", err)
+				log.Printf("❌ failed to send message to client %s: %v\n", c.clientId, err)
+				continue
 			}
 
-			log.Println("message sent")
+			log.Printf("✅ Message sent successfully to client %s: %s", c.clientId, message.Type)
 		}
 	}
 }

@@ -16,6 +16,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	e.GET("/ws/:gameId", s.manager.ServeWS)
 	e.GET("/check-h", s.healthHandler)
+	e.GET("/api/openings/random", s.randomOpeningHandler)
 	e.GET("/api/openings/:id", s.openingsHandler)
 
 	e.Logger.Fatal(e.Start(s.addr))
@@ -50,6 +51,17 @@ func (s *Server) openingsHandler(c echo.Context) error {
 	}
 
 	res, err := s.db.GetOpeningsByVolume(c.Request().Context(), params)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+func (s *Server) randomOpeningHandler(c echo.Context) error {
+	res, err := s.db.GetRandomOpening(c.Request().Context())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": err.Error(),

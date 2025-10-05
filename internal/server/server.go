@@ -30,10 +30,11 @@ func NewServer() *http.Server {
 	}
 
 	ctx := context.Background()
-	manager := websockets.NewManager(ctx)
+	db := database.New()
+	manager := websockets.NewManager(ctx, db)
 	NewServer := &Server{
 		addr:    fmt.Sprintf(":%d", port),
-		db:      database.New(),
+		db:      db,
 		manager: manager,
 	}
 

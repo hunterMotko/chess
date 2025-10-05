@@ -14,6 +14,26 @@ global.WebSocket = vi.fn().mockImplementation(() => ({
   CLOSED: WebSocket.CLOSED,
 }));
 
+// Mock DragEvent for testing
+class MockDragEvent extends Event {
+  constructor(type: string, init?: any) {
+    super(type, init);
+    this.dataTransfer = {
+      setData: vi.fn(),
+      getData: vi.fn(),
+      clearData: vi.fn(),
+      files: [],
+      items: [] as any,
+      types: [],
+      dropEffect: 'none',
+      effectAllowed: 'all',
+    };
+  }
+  dataTransfer: any;
+}
+
+global.DragEvent = MockDragEvent as any;
+
 // Mock crypto.randomUUID for tests
 Object.defineProperty(global, 'crypto', {
   value: {

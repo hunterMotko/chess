@@ -33,11 +33,17 @@ const getTotalOpeningsCount = `
 	`
 
 const getOpeningsByVolume = `
-	SELECT * FROM openings 
+	SELECT * FROM openings
 	WHERE eco LIKE $1
 	ORDER BY eco
 	LIMIT 50
 	OFFSET $2;
+	`
+
+const getRandomOpening = `
+	SELECT * FROM openings
+	ORDER BY RANDOM()
+	LIMIT 1;
 	`
 
 func (s *Service) GetOpeningsByVolume(ctx context.Context, params OpeningParams) (*OpeningsRes, error) {
@@ -68,4 +74,13 @@ func (s *Service) GetOpeningsByVolume(ctx context.Context, params OpeningParams)
 		Offset:   params.Offset,
 		Total:    total,
 	}, nil
+}
+
+func (s *Service) GetRandomOpening(ctx context.Context) (*Opening, error) {
+	var opening Opening
+	err := s.db.QueryRowContext(ctx, getRandomOpening).Scan(&opening.Id, &opening.Eco, &opening.Name, &opening.Pgn)
+	if err != nil {
+		return nil, err
+	}
+	return &opening, nil
 }

@@ -41,7 +41,7 @@ describe('useSocket', () => {
   it('should create WebSocket with correct URL', () => {
     renderHook(() => useSocket({ gameId }));
 
-    expect(WebSocket).toHaveBeenCalledWith(`ws://localhost:8888/ws/${gameId}`);
+    expect(WebSocket).toHaveBeenCalledWith(`ws://localhost:8888/ws/${gameId}?clientId=test-uuid-1234&userName=Player&type=player`);
   });
 
   it('should set isConnected to true when WebSocket opens', () => {
@@ -168,7 +168,7 @@ describe('useSocket', () => {
       }
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith(errorEvent);
+    expect(consoleSpy).toHaveBeenCalledWith('❌ WEBSOCKET ERROR:', errorEvent);
     consoleSpy.mockRestore();
   });
 
@@ -178,12 +178,12 @@ describe('useSocket', () => {
       { initialProps: { gameId: 'game-1' } }
     );
 
-    expect(WebSocket).toHaveBeenCalledWith('ws://localhost:8888/ws/game-1');
+    expect(WebSocket).toHaveBeenCalledWith('ws://localhost:8888/ws/game-1?clientId=test-uuid-1234&userName=Player&type=player');
 
     // Change gameId
     rerender({ gameId: 'game-2' });
 
-    expect(WebSocket).toHaveBeenCalledWith('ws://localhost:8888/ws/game-2');
+    expect(WebSocket).toHaveBeenCalledWith('ws://localhost:8888/ws/game-2?clientId=test-uuid-1234&userName=Player&type=player');
     expect(mockWebSocket.close).toHaveBeenCalled();
   });
 

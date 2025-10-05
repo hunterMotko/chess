@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router"
+import { useNavigate } from "react-router"
 import type { Route } from "./+types/opening-choice"
 import Pagination from "~/components/pagination"
 
@@ -48,55 +48,89 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 export default function({ loaderData }: Route.ComponentProps) {
 	const navigate = useNavigate()
 	const { id, data, page } = loaderData
+
+	// Handle case where data might be null due to API failure
+	if (!data || !data.openings) {
+		return (
+			<div className="min-h-screen text-white p-6 sm:p-10">
+				<div className="max-w-4xl mx-auto">
+					<div className="bg-red-900 border border-red-600 rounded-lg shadow-xl p-8 text-center">
+						<h1 className="text-3xl font-bold text-red-300 mb-4">Error Loading Openings</h1>
+						<p className="text-lg text-red-200 mb-6">Could not connect to server. Please try again.</p>
+						<button
+							onClick={() => navigate('/openings')}
+							className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+						>
+							Back to Openings
+						</button>
+					</div>
+				</div>
+			</div>
+		)
+	}
+
 	const totalPages = Math.floor(data.total / 50)
 
 	function onPageChange(curPage: number) {
 		navigate(`/openings/${id}?p=${curPage}&o=${curPage * 50}`)
 	}
 
-	function onClick(pgn: string) {
-		navigate(`/play/new?pgn=${pgn}`)
+	function onClick(pgn: string, eco: string) {
+		navigate(`/play/new?pgn=${pgn}&eco=${eco}`)
 	}
 
 	return (
-		<div className="my-5 mx-auto">
-			<section className="w-1/2 bg-gray-700 text-center border rounded my-8 mx-auto p-3">
-				<h1 className="text-4xl">Openings Volume: {id}</h1>
-				<p className="text-3xl">Choose your opening to practice</p>
-			</section>
-			<section className="mx-3">
-				{data.openings.map(item => (
-					<div
-						key={item.id}
-						className="bg-gray-700 hover:bg-gray-600 text-white grid grid-cols-7 font-bold border rounded mx-3 p-2"
-						onClick={() => onClick(item.pgn)}
+		<div className="min-h-screen text-white p-6 sm:p-10">
+			<div className="max-w-4xl mx-auto">
+				<h1 className="text-4xl sm:text-5xl font-extrabold mb-8 text-center text-indigo-400">
+					Openings Volume: {id}
+				</h1>
+				<p className="text-lg text-gray-300 mb-8 text-center">
+					Choose your opening to practice and master the theory.
+				</p>
+
+				<div className="space-y-4 mb-8">
+					{data.openings.map(item => (
+						<button
+							key={item.id}
+							onClick={() => onClick(item.pgn, item.eco)}
+							className="w-full bg-gray-800 rounded-lg shadow-xl p-6 border-2 border-transparent hover:border-indigo-500 transition-all duration-300 cursor-pointer group"
+						>
+							<div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
+								<div className="md:col-span-1">
+									<span className="inline-block bg-indigo-600 text-white text-sm font-bold px-3 py-1 rounded-full">
+										{item.eco}
+									</span>
+								</div>
+								<div className="md:col-span-3">
+									<h3 className="text-lg font-semibold text-gray-300 group-hover:text-indigo-200 text-left">
+										{item.name}
+									</h3>
+								</div>
+								<div className="md:col-span-3">
+									<p className="text-gray-400 text-sm font-mono text-left">
+										{item.pgn}
+									</p>
+								</div>
+							</div>
+						</button>
+					))}
+				</div>
+
+				<Pagination
+					curPage={page}
+					totalPages={totalPages}
+					onPageChange={onPageChange}
+				/>
+
+				<div className="text-center mt-10">
+					<button
+						onClick={() => navigate('/openings')}
+						className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-300"
 					>
-						<div className="">
-							{item.eco}
-						</div>
-						<div className="col-span-3">
-							{item.name}
-						</div>
-						<div className="col-span-3">
-							{item.pgn}
-						</div>
-					</div>
-				))}
-			</section>
-
-			<Pagination
-				curPage={page}
-				totalPages={totalPages}
-				onPageChange={onPageChange}
-			/>
-
-			<div className="text-center mt-10">
-				<button
-					onClick={() => navigate('/openings')}
-					className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-				>
-					Back to Home
-				</button>
+						Back to Openings
+					</button>
+				</div>
 			</div>
 		</div>
 	)
