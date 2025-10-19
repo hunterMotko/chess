@@ -1,16 +1,16 @@
 /* Chess Game Animations */
 
-/* Piece landing animation for when pieces move to a square */
+/* Piece landing animation for when pieces move to a square - gentler */
 @keyframes piece-land {
   0% {
-    transform: scale(1.2) translateY(-8px);
-    opacity: 0.8;
+    transform: scale(1.05);
+    opacity: 0.9;
   }
   50% {
-    transform: scale(1.05) translateY(-2px);
+    transform: scale(1.02);
   }
   100% {
-    transform: scale(1) translateY(0);
+    transform: scale(1);
     opacity: 1;
   }
 }
@@ -75,11 +75,11 @@
   }
 }
 
-/* Illegal move shake animation */
+/* Illegal move shake animation - reduced intensity */
 @keyframes illegal-shake {
   0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
 }
 
 /* Promotion glow animation */
@@ -124,7 +124,7 @@
 
 /* CSS utility classes */
 .animate-piece-land {
-  animation: piece-land 0.4s ease-out;
+  animation: piece-land 0.2s ease-out;
 }
 
 .animate-piece-select {
@@ -144,7 +144,7 @@
 }
 
 .animate-illegal-shake {
-  animation: illegal-shake 0.6s ease-in-out;
+  animation: illegal-shake 0.4s ease-in-out;
 }
 
 .animate-promotion-glow {
@@ -235,12 +235,27 @@
   }
 }
 
-/* Performance optimizations */
+/* Performance optimizations and animation containment */
 .piece,
 .square {
   will-change: transform;
   backface-visibility: hidden;
   transform-style: preserve-3d;
+  contain: layout style paint;
+}
+
+/* Chess board containment for stable layout */
+.chess-board {
+  contain: layout style;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Reduce motion for animations that cause layout shifts */
+.animate-piece-land,
+.animate-piece-select,
+.animate-illegal-shake {
+  contain: layout;
 }
 
 /* Touch device optimizations */

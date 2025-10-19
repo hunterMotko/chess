@@ -59,3 +59,13 @@ export const pieceImgs: {
 	'k': 'b-king.svg',
 	'p': 'b-pawn.svg',
 }
+
+// Piece values for material calculation
+export const PIECE_VALUES: { [key: string]: number } = {
+	'p': 1, 'P': 1,
+	'r': 5, 'R': 5,
+	'n': 3, 'N': 3,
+	'b': 3, 'B': 3,
+	'q': 9, 'Q': 9
+}
+

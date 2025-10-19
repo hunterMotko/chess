@@ -1,5 +1,4 @@
 import type { Route } from "./+types/home";
-import Game from '../game/Game'
 import { Link } from "react-router";
 
 export function meta({ }: Route.MetaArgs) {
