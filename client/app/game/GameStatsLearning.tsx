@@ -1,5 +1,3 @@
-import React from "react"
-
 type OpeningDemoState = {
 	isPlaying: boolean
 	moves: string[]
@@ -21,7 +19,16 @@ type GameStatsLearningProps = {
 }
 
 export default function GameStatsLearning({
-	isConnected, handleFlipBoard, history, fen, turn, isFlipped, openingDemo, gameId, onPlayAnotherOpening, lastMoveAttempt
+	isConnected,
+	handleFlipBoard,
+	history,
+	fen,
+	turn,
+	isFlipped,
+	openingDemo,
+	gameId,
+	onPlayAnotherOpening,
+	lastMoveAttempt
 }: GameStatsLearningProps) {
 
 	return (
@@ -35,9 +42,8 @@ export default function GameStatsLearning({
 					</div>
 					<div className="flex items-center space-x-2">
 						<span className="text-sm text-gray-400">Turn:</span>
-						<span className={`font-semibold px-2 py-1 rounded text-sm w-16 text-center ${
-							turn === 'w' ? 'bg-white text-black' : 'bg-gray-800 text-white border'
-						}`}>
+						<span className={`font-semibold px-2 py-1 rounded text-sm w-16 text-center ${turn === 'w' ? 'bg-white text-black' : 'bg-gray-800 text-white border'
+							}`}>
 							{turn === 'w' ? "White" : "Black"}
 						</span>
 					</div>
@@ -54,11 +60,10 @@ export default function GameStatsLearning({
 						<button
 							onClick={handleFlipBoard}
 							disabled={openingDemo && !openingDemo.isComplete}
-							className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${
-								openingDemo && !openingDemo.isComplete
-									? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-									: 'bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-500 hover:to-gray-500 text-white shadow-lg hover:shadow-xl'
-							}`}
+							className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
+								? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+								: 'bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-500 hover:to-gray-500 text-white shadow-lg hover:shadow-xl'
+								}`}
 						>
 							{isFlipped ? '⬆️' : '⬇️'} Flip
 						</button>
@@ -66,11 +71,10 @@ export default function GameStatsLearning({
 							<button
 								onClick={onPlayAnotherOpening}
 								disabled={openingDemo && !openingDemo.isComplete}
-								className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${
-									openingDemo && !openingDemo.isComplete
-										? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-										: 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg hover:shadow-xl'
-								}`}
+								className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
+									? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+									: 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg hover:shadow-xl'
+									}`}
 							>
 								🎲 Random
 							</button>
@@ -78,7 +82,9 @@ export default function GameStatsLearning({
 					</div>
 
 					{openingDemo && openingDemo.isComplete && (
-						<div className="bg-gradient-to-r from-indigo-900 to-purple-900 border border-indigo-500/30 rounded-lg p-2 text-center shadow-lg">
+						<div
+							className="bg-gradient-to-r from-indigo-900 to-purple-900 border border-indigo-500/30 rounded-lg p-2 text-center shadow-lg"
+						>
 							<p className="text-indigo-200 text-xs">🎯 Interactive Mode Enabled</p>
 							<p className="text-indigo-300 text-xs mt-1">Click and drag pieces to continue playing!</p>
 						</div>
@@ -95,7 +101,7 @@ export default function GameStatsLearning({
 							<p className="text-gray-500 text-sm">No moves yet</p>
 						</div>
 					) : (
-						<div 
+						<div
 							className="h-full overflow-y-auto p-2 sm:p-3"
 							style={{
 								scrollbarWidth: 'thin',
@@ -106,7 +112,7 @@ export default function GameStatsLearning({
 								{history.map((move, i) => {
 									const moveNumber = Math.floor(i / 2) + 1
 									const isWhiteMove = i % 2 === 0
-									
+
 									if (isWhiteMove) {
 										const blackMove = history[i + 1]
 										return (

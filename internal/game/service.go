@@ -217,6 +217,19 @@ func (gs *GameService) MakeMove(gameID string, playerID string, moveStr string) 
 	}
 	
 	if selectedMove == nil {
+		// Enhanced debugging - show current state when move fails
+		currentFEN := game.ChessGame.FEN()
+		log.Printf("🔍 Move validation failed for %s", moveStr)
+		log.Printf("  Current FEN: %s", currentFEN)
+		log.Printf("  Valid moves available:")
+		for i, validMove := range validMoves {
+			if i < 10 { // Show first 10 valid moves
+				log.Printf("    %s", validMove.String())
+			}
+		}
+		if len(validMoves) > 10 {
+			log.Printf("    ... and %d more moves", len(validMoves)-10)
+		}
 		return nil, fmt.Errorf("invalid move: %s", moveStr)
 	}
 	

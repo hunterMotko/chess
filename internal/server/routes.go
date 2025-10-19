@@ -13,6 +13,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 
 	e.GET("/ws/:gameId", s.manager.ServeWS)
 	e.GET("/check-h", s.healthHandler)

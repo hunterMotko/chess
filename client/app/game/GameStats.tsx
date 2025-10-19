@@ -37,8 +37,26 @@ type GameStatsProps = {
 }
 
 function GameStats({
-	isConnected, gameOutcome, handleNewGame, handleFlipBoard, handleResign, handleDrawOffer, history, fen, turn, isFlipped, openingDemo,
-	playbackState, onFirstMove, onPreviousMove, onNextMove, onLastMove, onNavigateToMove, onPlayAnotherOpening, learningMode, lastMoveAttempt
+	isConnected,
+	gameOutcome,
+	handleNewGame,
+	handleFlipBoard,
+	handleResign,
+	handleDrawOffer,
+	history,
+	fen,
+	turn,
+	isFlipped,
+	openingDemo,
+	playbackState,
+	onFirstMove,
+	onPreviousMove,
+	onNextMove,
+	onLastMove,
+	onNavigateToMove,
+	onPlayAnotherOpening,
+	learningMode,
+	lastMoveAttempt
 }: GameStatsProps) {
 
 	return (
@@ -52,13 +70,13 @@ function GameStats({
 					</div>
 					<div className="flex items-center space-x-2">
 						<span className="text-sm text-gray-400">Turn:</span>
-						<span className={`font-semibold px-2 py-1 rounded text-sm w-16 text-center ${turn === 'w' ? 'bg-white text-black' : 'bg-gray-800 text-white border'
-							}`}>
+						<span className={
+							`font-semibold px-2 py-1 rounded text-sm w-16 text-center ${turn === 'w' ? 'bg-white text-black' : 'bg-gray-800 text-white border'}`
+						}>
 							{turn === 'w' ? "White" : "Black"}
 						</span>
 					</div>
 				</div>
-
 
 				{gameOutcome && (
 					<div className="bg-gradient-to-r from-amber-900 to-yellow-900 border border-amber-500/30 rounded-lg p-2 sm:p-3 shadow-lg">
@@ -78,9 +96,11 @@ function GameStats({
 							<span className="text-xs text-gray-400">Move Navigation</span>
 							{playbackState?.isActive && (
 								<span className="text-xs text-blue-400">
-									{playbackState.currentMoveIndex === -1
-										? "Starting position"
-										: `Move ${playbackState.currentMoveIndex + 1}/${history.length}`}
+									{
+										playbackState.currentMoveIndex === -1
+											? "Starting position"
+											: `Move ${playbackState.currentMoveIndex + 1}/${history.length}`
+									}
 								</span>
 							)}
 						</div>
@@ -88,10 +108,12 @@ function GameStats({
 							<button
 								onClick={onFirstMove}
 								disabled={!onFirstMove || (openingDemo && !openingDemo.isComplete)}
-								className={`p-2 transition-all duration-200 min-h-[64px] min-w-[64px] flex items-center justify-center rounded-lg ${openingDemo && !openingDemo.isComplete
-									? 'text-gray-600 cursor-not-allowed'
-									: 'text-amber-400 hover:text-amber-300 hover:bg-gray-800/50 hover:shadow-lg'
-									}`}
+								className={
+									`p-2 transition-all duration-200 min-h-[64px] min-w-[64px] flex items-center justify-center rounded-lg ${openingDemo && !openingDemo.isComplete
+										? 'text-gray-600 cursor-not-allowed'
+										: 'text-amber-400 hover:text-amber-300 hover:bg-gray-800/50 hover:shadow-lg'
+									}`
+								}
 								title="First move"
 							>
 								<span style={{ fontSize: '36px' }}>⏮</span>
@@ -99,10 +121,12 @@ function GameStats({
 							<button
 								onClick={onPreviousMove}
 								disabled={!onPreviousMove || history.length === 0 || (openingDemo && !openingDemo.isComplete)}
-								className={`p-2 transition-all duration-200 min-h-[64px] min-w-[64px] flex items-center justify-center rounded-lg ${!onPreviousMove || history.length === 0 || (openingDemo && !openingDemo.isComplete)
-									? 'text-gray-600 cursor-not-allowed'
-									: 'text-amber-400 hover:text-amber-300 hover:bg-gray-800/50 hover:shadow-lg'
-									}`}
+								className={
+									`p-2 transition-all duration-200 min-h-[64px] min-w-[64px] flex items-center justify-center rounded-lg ${!onPreviousMove || history.length === 0 || (openingDemo && !openingDemo.isComplete)
+										? 'text-gray-600 cursor-not-allowed'
+										: 'text-amber-400 hover:text-amber-300 hover:bg-gray-800/50 hover:shadow-lg'
+									}`
+								}
 								title="Previous move"
 							>
 								<span style={{ fontSize: '36px' }}>⏪</span>
@@ -121,12 +145,14 @@ function GameStats({
 							<button
 								onClick={onLastMove}
 								disabled={!onLastMove || (openingDemo && !openingDemo.isComplete)}
-								className={`p-2 transition-all duration-200 min-h-[64px] min-w-[64px] flex items-center justify-center rounded-lg ${openingDemo && !openingDemo.isComplete
-									? 'text-gray-600 cursor-not-allowed'
-									: playbackState?.isActive
-										? 'text-emerald-400 hover:text-emerald-300 hover:bg-gray-800/50 hover:shadow-lg'
-										: 'text-amber-400 hover:text-amber-300 hover:bg-gray-800/50 hover:shadow-lg'
-									}`}
+								className={
+									`p-2 transition-all duration-200 min-h-[64px] min-w-[64px] flex items-center justify-center rounded-lg ${openingDemo && !openingDemo.isComplete
+										? 'text-gray-600 cursor-not-allowed'
+										: playbackState?.isActive
+											? 'text-emerald-400 hover:text-emerald-300 hover:bg-gray-800/50 hover:shadow-lg'
+											: 'text-amber-400 hover:text-amber-300 hover:bg-gray-800/50 hover:shadow-lg'
+									}`
+								}
 								title={playbackState?.isActive ? "Return to live game" : "Latest move"}
 							>
 								<span style={{ fontSize: '36px' }}>⏭</span>
@@ -142,10 +168,12 @@ function GameStats({
 							<button
 								onClick={handleNewGame}
 								disabled={openingDemo && !openingDemo.isComplete}
-								className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
-									? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-									: 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl'
-									}`}
+								className={
+									`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
+										? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+										: 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl'
+									}`
+								}
 							>
 								♟️ New Opening
 							</button>
@@ -153,10 +181,12 @@ function GameStats({
 								<button
 									onClick={onPlayAnotherOpening}
 									disabled={openingDemo && !openingDemo.isComplete}
-									className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
-										? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-										: 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg hover:shadow-xl'
-										}`}
+									className={
+										`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
+											? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+											: 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg hover:shadow-xl'
+										}`
+									}
 								>
 									🎲 Random
 								</button>
@@ -169,10 +199,12 @@ function GameStats({
 						<button
 							onClick={handleNewGame}
 							disabled={openingDemo && !openingDemo.isComplete}
-							className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm w-full ${openingDemo && !openingDemo.isComplete
-								? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-								: 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white shadow-lg hover:shadow-xl'
-								}`}
+							className={
+								`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm w-full ${openingDemo && !openingDemo.isComplete
+									? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+									: 'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white shadow-lg hover:shadow-xl'
+								}`
+							}
 						>
 							♟️ New Game
 						</button>
@@ -182,10 +214,12 @@ function GameStats({
 						<button
 							onClick={handleFlipBoard}
 							disabled={openingDemo && !openingDemo.isComplete}
-							className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
-								? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-								: 'bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-500 hover:to-gray-500 text-white shadow-lg hover:shadow-xl'
-								}`}
+							className={
+								`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
+									? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+									: 'bg-gradient-to-r from-slate-600 to-gray-600 hover:from-slate-500 hover:to-gray-500 text-white shadow-lg hover:shadow-xl'
+								}`
+							}
 						>
 							{isFlipped ? '⬆️' : '⬇️'} Flip
 						</button>
@@ -194,10 +228,12 @@ function GameStats({
 								<button
 									onClick={handleDrawOffer}
 									disabled={openingDemo && !openingDemo.isComplete}
-									className={`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
-										? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-										: 'bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white shadow-lg hover:shadow-xl'
-										}`}
+									className={
+										`font-medium py-2 px-3 rounded-lg transition-all duration-200 text-sm flex-1 ${openingDemo && !openingDemo.isComplete
+											? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+											: 'bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white shadow-lg hover:shadow-xl'
+										}`
+									}
 								>
 									🤝 Draw
 								</button>
@@ -294,20 +330,16 @@ export default memo(GameStats, (prevProps, nextProps) => {
 	// Only rerender if essential display data changes
 	const prevHistory = prevProps.history
 	const nextHistory = nextProps.history
-
 	// Check if history array content actually changed (not just reference)
 	const historyChanged = prevHistory.length !== nextHistory.length ||
 		prevHistory.some((move, index) => move !== nextHistory[index])
-
 	const openingDemoChanged =
 		prevProps.openingDemo?.isPlaying !== nextProps.openingDemo?.isPlaying ||
 		prevProps.openingDemo?.currentMoveIndex !== nextProps.openingDemo?.currentMoveIndex ||
 		prevProps.openingDemo?.isComplete !== nextProps.openingDemo?.isComplete
-
 	const playbackStateChanged =
 		prevProps.playbackState?.isActive !== nextProps.playbackState?.isActive ||
 		prevProps.playbackState?.currentMoveIndex !== nextProps.playbackState?.currentMoveIndex
-
 	// Return true if no changes (skip rerender), false if changes detected
 	return !historyChanged &&
 		prevProps.isConnected === nextProps.isConnected &&
