@@ -4,49 +4,38 @@ import type { PlayerColor, PieceColor } from "~/types/chess"
 export class ChessService {
 	private chess: Chess
 	private navigationChess: Chess
-
 	constructor(gameId?: string) {
 		this.chess = new Chess()
 		this.navigationChess = new Chess()
-
 		if (gameId) {
 			this.chess.setHeader('gameId', gameId)
 		}
 	}
-
 	// Basic chess operations
 	get instance() {
 		return this.chess
 	}
-
 	get navigationInstance() {
 		return this.navigationChess
 	}
-
 	fen(): string {
 		return this.chess.fen()
 	}
-
 	turn(): PieceColor {
 		return this.chess.turn()
 	}
-
 	history(): string[] {
 		return this.chess.history()
 	}
-
 	isGameOver(): boolean {
 		return this.chess.isGameOver()
 	}
-
 	isCheckmate(): boolean {
 		return this.chess.isCheckmate()
 	}
-
 	isDraw(): boolean {
 		return this.chess.isDraw()
 	}
-
 	isStalemate(): boolean {
 		return this.chess.isStalemate()
 	}
@@ -63,11 +52,9 @@ export class ChessService {
 	load(fen: string): void {
 		this.chess.load(fen)
 	}
-
 	loadPgn(pgn: string): void {
 		this.chess.loadPgn(pgn)
 	}
-
 	// Move operations
 	move(move: string | { from: Square; to: Square; promotion?: string }) {
 		return this.chess.move(move)
@@ -78,11 +65,9 @@ export class ChessService {
 	moves(options?: { square?: Square; verbose?: boolean }): any[] {
 		return this.chess.moves(options as any)
 	}
-
 	get(square: Square) {
 		return this.chess.get(square)
 	}
-
 	// Navigation operations for playback
 	reconstructPositionAtMove(moveIndex: number, history: string[]): void {
 		this.navigationChess.reset()
@@ -142,14 +127,11 @@ export class ChessService {
 				'Q': 'Queen',
 				'K': 'King'
 			}
-
 			return `${pieceName[pieceType] || 'Piece'} cannot move to ${to.toUpperCase()}`
 		}
-
 		if (this.chess.inCheck()) {
 			return "Move would leave your king in check"
 		}
-
 		return "Invalid move"
 	}
 

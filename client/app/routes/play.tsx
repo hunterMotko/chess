@@ -1,10 +1,6 @@
 import type { Route } from "./+types/play";
-import ChessGame from "~/game/ChessGame";
+import ChessGame from "~/components/ChessGame";
 
-// newGameId
-// is new create new game items
-// is from openings load in png?
-// game stats?
 export async function loader({ request }: Route.LoaderArgs) {
 	const gameId = crypto.randomUUID()
 	let url = new URL(request.url)
