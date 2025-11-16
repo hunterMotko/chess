@@ -29,7 +29,7 @@ export interface OpeningDemoState {
 	isComplete: boolean
 }
 
-export interface PendingPromotion {
+export interface Promotion {
 	from: string
 	to: string
 	color: PlayerColor

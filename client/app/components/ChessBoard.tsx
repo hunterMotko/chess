@@ -89,7 +89,7 @@ export default function ChessBoard({
 							onClick={() => onClick(square)}
 						>
 							{showFile && (
-								<span className={`absolute right-0 bottom-0 text-xl font-semibold ${fontColor}`}>
+								<span className={`absolute right-1 -bottom-1 text-xl font-semibold ${fontColor}`}>
 									{square[0]}
 								</span>
 							)}

@@ -7,7 +7,6 @@ type GameSetupProps = {
 export default function GameSetup({ onStartGame }: GameSetupProps) {
 	const [selectedDifficulty, setSelectedDifficulty] = useState(10)
 	const [selectedColor, setSelectedColor] = useState<'white' | 'black'>('white')
-
 	const difficultyLevels = [
 		{ value: 1, label: "Beginner", description: "Very easy", icon: "🌱" },
 		{ value: 5, label: "Easy", description: "Learning", icon: "🎯" },
@@ -15,16 +14,13 @@ export default function GameSetup({ onStartGame }: GameSetupProps) {
 		{ value: 15, label: "Hard", description: "Challenging", icon: "🔥" },
 		{ value: 20, label: "Expert", description: "Maximum strength", icon: "🏆" }
 	]
-
 	const handleStart = () => {
 		onStartGame(selectedDifficulty, selectedColor)
 	}
-
 	const colorOptions = [
 		{ value: 'white' as const, label: "White", description: "You move first", icon: "♔" },
 		{ value: 'black' as const, label: "Black", description: "AI moves first", icon: "♚" }
 	]
-
 	return (
 		<div className="min-h-screen text-white p-6 sm:p-10">
 			<div className="max-w-4xl mx-auto">
@@ -45,11 +41,10 @@ export default function GameSetup({ onStartGame }: GameSetupProps) {
 								<button
 									key={level.value}
 									onClick={() => setSelectedDifficulty(level.value)}
-									className={`w-full p-4 rounded-lg border-2 transition-all duration-300 ${
-										selectedDifficulty === level.value
-											? 'border-indigo-500 bg-indigo-900 bg-opacity-30'
-											: 'border-transparent bg-gray-700 hover:border-indigo-500'
-									} group`}
+									className={`w-full p-4 rounded-lg border-2 transition-all duration-300 ${selectedDifficulty === level.value
+										? 'border-indigo-500 bg-indigo-900 bg-opacity-30'
+										: 'border-transparent bg-gray-700 hover:border-indigo-500'
+										} group`}
 								>
 									<div className="flex items-center justify-between">
 										<div className="flex items-center space-x-3">
@@ -79,11 +74,10 @@ export default function GameSetup({ onStartGame }: GameSetupProps) {
 								<button
 									key={color.value}
 									onClick={() => setSelectedColor(color.value)}
-									className={`w-full p-4 rounded-lg border-2 transition-all duration-300 ${
-										selectedColor === color.value
-											? 'border-indigo-500 bg-indigo-900 bg-opacity-30'
-											: 'border-transparent bg-gray-700 hover:border-indigo-500'
-									} group`}
+									className={`w-full p-4 rounded-lg border-2 transition-all duration-300 ${selectedColor === color.value
+										? 'border-indigo-500 bg-indigo-900 bg-opacity-30'
+										: 'border-transparent bg-gray-700 hover:border-indigo-500'
+										} group`}
 								>
 									<div className="flex items-center space-x-4">
 										<div className="text-4xl">{color.icon}</div>

@@ -18,18 +18,24 @@ const (
 )
 
 type Client struct {
-	conn      *websocket.Conn
-	manager   *Manager
+	conn    *websocket.Conn
+	manager *Manager
 	// egress is used to avoid concurrent writes on the websocket conn
-	egress    chan Event
-	gameState *chess.Game
-	gameId    string
-	clientId  string
-	userName  string
+	egress     chan Event
+	gameState  *chess.Game
+	gameId     string
+	clientId   string
+	userName   string
 	clientType ClientType
 }
 
-func NewClient(conn *websocket.Conn, manager *Manager, gameId, clientId, userName string, clientType ClientType) *Client {
+func NewClient(
+	conn *websocket.Conn,
+	manager *Manager,
+	gameId, clientId,
+	userName string,
+	clientType ClientType,
+) *Client {
 	return &Client{
 		conn:       conn,
 		manager:    manager,
@@ -60,7 +66,7 @@ func (c *Client) readMessages() {
 			break
 		}
 		log.Printf("Received message from client %s: %s", c.clientId, string(payload))
-		
+
 		var req Event
 		if err := json.Unmarshal(payload, &req); err != nil {
 			log.Printf("ERROR UNMARSHALLING EVENT: %v\n", err)

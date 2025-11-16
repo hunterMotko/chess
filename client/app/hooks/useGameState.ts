@@ -4,7 +4,7 @@ import type {
 	GameState,
 	PlaybackState,
 	OpeningDemoState,
-	PendingPromotion,
+	Promotion,
 	LastMove,
 	LastMoveAttempt,
 	CapturedPieces,
@@ -31,7 +31,7 @@ interface ConsolidatedGameState {
 	capturedPieces: CapturedPieces
 
 	// Promotion
-	pendingPromotion: PendingPromotion | null
+	pendingPromotion: Promotion | null
 
 	// Playback
 	playback: PlaybackState
@@ -58,7 +58,7 @@ type GameStateAction =
 	| { type: 'INCREMENT_USER_MOVE_COUNTER' }
 	| { type: 'ADD_CAPTURED_PIECE'; payload: { piece: string; capturedBy: 'white' | 'black' } }
 	| { type: 'RESET_CAPTURED_PIECES' }
-	| { type: 'SET_PENDING_PROMOTION'; payload: PendingPromotion | null }
+	| { type: 'SET_PENDING_PROMOTION'; payload: Promotion | null }
 	| { type: 'UPDATE_PLAYBACK'; payload: Partial<PlaybackState> }
 	| { type: 'UPDATE_OPENING_DEMO'; payload: Partial<OpeningDemoState> }
 	| { type: 'SET_GAME_STARTED'; payload: boolean }
@@ -78,25 +78,18 @@ function gameStateReducer(
 				...state,
 				game: { ...state.game, ...action.payload }
 			}
-
 		case 'SET_FLIPPED':
 			return { ...state, isFlipped: action.payload }
-
 		case 'SET_SOURCE_SQUARE':
 			return { ...state, sourceSquare: action.payload }
-
 		case 'SET_AVAILABLE_MOVES':
 			return { ...state, availableMoves: action.payload }
-
 		case 'SET_LAST_MOVE':
 			return { ...state, lastMove: action.payload }
-
 		case 'SET_LAST_MOVE_ATTEMPT':
 			return { ...state, lastMoveAttempt: action.payload }
-
 		case 'INCREMENT_USER_MOVE_COUNTER':
 			return { ...state, userMoveCounter: state.userMoveCounter + 1 }
-
 		case 'ADD_CAPTURED_PIECE': {
 			const { piece, capturedBy } = action.payload
 			return {
@@ -111,43 +104,33 @@ function gameStateReducer(
 				}
 			}
 		}
-
 		case 'RESET_CAPTURED_PIECES':
 			return {
 				...state,
 				capturedPieces: { byWhite: [], byBlack: [] }
 			}
-
 		case 'SET_PENDING_PROMOTION':
 			return { ...state, pendingPromotion: action.payload }
-
 		case 'UPDATE_PLAYBACK':
 			return {
 				...state,
 				playback: { ...state.playback, ...action.payload }
 			}
-
 		case 'UPDATE_OPENING_DEMO':
 			return {
 				...state,
 				openingDemo: { ...state.openingDemo, ...action.payload }
 			}
-
 		case 'SET_GAME_STARTED':
 			return { ...state, gameStarted: action.payload }
-
 		case 'SET_GAME_TYPE':
 			return { ...state, gameType: action.payload }
-
 		case 'SET_PLAYER_COLOR':
 			return { ...state, playerColor: action.payload }
-
 		case 'SET_AI_DIFFICULTY':
 			return { ...state, aiDifficulty: action.payload }
-
 		case 'SET_AI_GAME_INITIALIZED':
 			return { ...state, aiGameInitialized: action.payload }
-
 		case 'RESET_GAME': {
 			const { chess, openingMoves = [] } = action.payload
 			return {
@@ -179,7 +162,6 @@ function gameStateReducer(
 				}
 			}
 		}
-
 		default:
 			return state
 	}
@@ -222,12 +204,10 @@ export function useGameState(chess: Chess, openingMoves: string[], learningMode:
 
 	const [state, dispatch] = useReducer(gameStateReducer, initialState)
 	const moveHistoryRef = useRef<string[]>([])
-
 	// Update move history ref when game history changes
 	if (state.game.history !== moveHistoryRef.current) {
 		moveHistoryRef.current = state.game.history
 	}
-
 	// Helper function to update game state from chess instance
 	const updateGameStateFromChess = useCallback(() => {
 		const newFen = chess.fen()
@@ -235,7 +215,6 @@ export function useGameState(chess: Chess, openingMoves: string[], learningMode:
 		const newHistory = chess.history()
 		const isGameOver = chess.isGameOver()
 		let gameOutcome: string | null = null
-
 		if (isGameOver) {
 			if (chess.isCheckmate()) {
 				const winner = chess.turn() === 'w' ? 'black' : 'white'
@@ -246,7 +225,6 @@ export function useGameState(chess: Chess, openingMoves: string[], learningMode:
 				gameOutcome = 'Stalemate!'
 			}
 		}
-
 		// Only update if something actually changed
 		const hasChanges =
 			state.game.fen !== newFen ||
@@ -254,7 +232,6 @@ export function useGameState(chess: Chess, openingMoves: string[], learningMode:
 			state.game.history.length !== newHistory.length ||
 			state.game.isGameOver !== isGameOver ||
 			state.game.gameOutcome !== gameOutcome
-
 		if (hasChanges) {
 			dispatch({
 				type: 'UPDATE_GAME_STATE',
@@ -268,7 +245,6 @@ export function useGameState(chess: Chess, openingMoves: string[], learningMode:
 			})
 		}
 	}, [chess, state.game])
-
 	return {
 		state,
 		dispatch,

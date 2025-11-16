@@ -1,5 +1,3 @@
-// Chess opening move explanations system
-
 export type MoveExplanation = {
 	move: string
 	moveNumber: number
@@ -19,6 +17,7 @@ export type OpeningExplanations = {
 }
 
 // Common opening explanations database
+// TODO: migration or MCP?
 export const openingExplanationsDB: Record<string, OpeningExplanations> = {
 	// Sicilian Defense examples
 	'B20': {

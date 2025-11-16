@@ -1,3 +1,14 @@
+import { Chess } from "chess.js"
+import type { GameState } from "~/types/chess"
+
+export const INITIAL_GAME_STATE: GameState = {
+	fen: new Chess().fen(),
+	turn: 'w',
+	history: [],
+	isGameOver: false,
+	gameOutcome: null
+}
+
 // Game timing constants
 export const OPENING_MOVE_DELAY_MS = 2500
 export const AI_MOVE_DELAY_MS = 1000
